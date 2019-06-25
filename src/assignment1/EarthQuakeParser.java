@@ -103,8 +103,8 @@ public class EarthQuakeParser {
         EarthQuakeParser xp = new EarthQuakeParser();
 //        String source = "data/2.5_week.atom";
 //        String source = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom";
-        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedatasmall.atom";
-//        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedata.atom";
+//        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedatasmall.atom";
+        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedata.atom";
         ArrayList<QuakeEntry> list  = xp.read(source);
         Collections.sort(list);
         Scanner in = new Scanner(System.in);
@@ -115,6 +115,9 @@ public class EarthQuakeParser {
         System.out.println("# quakes = " +list.size());
         
         EarthQuakeClient o = new EarthQuakeClient();
+        /*
+         * First implementation to filter the data and gather output.
+         */
 //        o.bigQuakes();
 //        o.closeToMe();
 //        o.quakesOfDepth();
@@ -128,23 +131,33 @@ public class EarthQuakeParser {
         
         
         /*
-         * Alternative way to filter through the data using an Interface to avoid duplicating code. 
+         * Second alternative way to filter through the data using a Filter Interface to avoid duplicating code. 
          */
         Filter f = new MinMagFilter(5.0);
-        Filter f1 = new DepthFilter(-8000.0, -5000.0);
-        Filter f2 = new DistanceFilter(1000000,new Location(38.17, -118.82));
-        System.out.println("Enter a phrase to find:");
-        String phrase = in.next();
-        System.out.println("Enter a location to find the phrase:");
-        String where = in.next();
-        in.close();
-        Filter f3 = new PhraseFilter(phrase, where);
+        Filter f1 = new DepthFilter(-11000.0, -5000.0);
+        Filter f2 = new DistanceFilter(10000000,new Location(-6.211,106.845));
+        Filter f3 = new PhraseFilter();
      
-        ArrayList<QuakeEntry> results = o.filter(list, f3);
+//        ArrayList<QuakeEntry> results = o.filter(list, f3);
+//        for (QuakeEntry qe : results) {
+//        	System.out.println(qe);
+//        }
+//        System.out.println("found " + results.size() + " that match the criteria.");	
+        
+        /*
+         * Third alternative way to filter through the data using a matchAllFilter interface to get rid of filter duplication code.
+         */
+        MatchAllFilter maf = new MatchAllFilter();
+        maf.addFilter(f);
+        maf.addFilter(f1);
+        maf.addFilter(f2);
+        maf.addFilter(f3);
+        
+        ArrayList<QuakeEntry> results = o.filter(list, maf);
         for (QuakeEntry qe : results) {
         	System.out.println(qe);
         }
-        System.out.println("found " + results.size() + " that match the criteria.");	
+        System.out.println("found " + results.size() + " that match the criteria.");
         
      
     }

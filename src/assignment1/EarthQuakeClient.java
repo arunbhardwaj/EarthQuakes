@@ -99,6 +99,16 @@ public class EarthQuakeClient {
     	return result;
     }
     
+    public ArrayList<QuakeEntry> filter(ArrayList<QuakeEntry> quakeData, MatchAllFilter f) {
+    	ArrayList<QuakeEntry> result = new ArrayList<QuakeEntry>();
+    	for (QuakeEntry qe : quakeData) {
+    		if (f.satisfies(qe)) {
+    			result.add(qe);
+    		}
+    	}
+    	return result;
+    }
+    
     public void dumpCSV(ArrayList<QuakeEntry> list){
         System.out.println("Latitude,Longitude,Magnitude,Info");
         for(QuakeEntry qe : list){
