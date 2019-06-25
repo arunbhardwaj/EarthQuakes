@@ -62,7 +62,7 @@ public class EarthQuakeClient {
     	ArrayList<QuakeEntry> result = new ArrayList<QuakeEntry>();
     	for (QuakeEntry qe : quakeData) {
     		double depth = qe.getDepth();
-    		if (depth >= minDepth && depth <= maxDepth) {
+    		if (depth > minDepth && depth < maxDepth) {
     			result.add(qe);
     		}
     	}
@@ -89,6 +89,16 @@ public class EarthQuakeClient {
     	return result;
     }
     
+    public ArrayList<QuakeEntry> filter(ArrayList<QuakeEntry> quakeData, Filter f) {
+    	ArrayList<QuakeEntry> result = new ArrayList<QuakeEntry>();
+    	for (QuakeEntry qe : quakeData) {
+    		if (f.satisfies(qe)) {
+    			result.add(qe);
+    		}
+    	}
+    	return result;
+    }
+    
     public void dumpCSV(ArrayList<QuakeEntry> list){
         System.out.println("Latitude,Longitude,Magnitude,Info");
         for(QuakeEntry qe : list){
@@ -103,7 +113,7 @@ public class EarthQuakeClient {
 
     public void bigQuakes() {
         EarthQuakeParser parser = new EarthQuakeParser();
-        //String source = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom";
+//        String source = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom";
         String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedatasmall.atom";
         ArrayList<QuakeEntry> list  = parser.read(source);
         System.out.println("read data for "+list.size()+" quakes");
@@ -119,12 +129,14 @@ public class EarthQuakeClient {
 
     public void quakesOfDepth() {
     	EarthQuakeParser parser = new EarthQuakeParser();
-        //String source = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom";
-        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedatasmall.atom";
+//        String source = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom";
+//        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedatasmall.atom";
+        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedata.atom";
+
         ArrayList<QuakeEntry> list  = parser.read(source);
         System.out.println("read data for "+list.size()+" quakes");
         
-        ArrayList<QuakeEntry> answer = filterByDepth(list, -10000.0, -5000.0);
+        ArrayList<QuakeEntry> answer = filterByDepth(list, -8000.0, -5000.0);
         for (QuakeEntry qe : answer) {
         	System.out.println(qe);
         }
@@ -143,10 +155,11 @@ public class EarthQuakeClient {
     	EarthQuakeParser parser = new EarthQuakeParser();
     	Scanner in = new Scanner(System.in);
     	
-    	// Specify a source file:
-        //String source = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom";
-        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedatasmall.atom";
-        
+//    	 Specify a source file:
+//        String source = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom";
+//        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedatasmall.atom";
+        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedata.atom";
+
         
         ArrayList<QuakeEntry> list  = parser.read(source);
         System.out.println("read data for "+list.size()+" quakes");
@@ -156,7 +169,7 @@ public class EarthQuakeClient {
         String phrase = in.next();
         System.out.println("Enter a location to find the phrase:");
         String where = in.next();
-        
+        in.close();
         
         ArrayList<QuakeEntry> answer = filterByPhrase(list, phrase, where);
         for (QuakeEntry qe : answer) {
@@ -174,14 +187,14 @@ public class EarthQuakeClient {
         ArrayList<QuakeEntry> list  = parser.read(source);
         System.out.println("read data for "+list.size()+" quakes");
 
-        // This location is Durham, NC
-        // Location city = new Location(35.988, -78.907);
+//         This location is Durham, NC
+//         Location city = new Location(35.988, -78.907);
 
-        // This location is Bridgeport, CA
+//         This location is Bridgeport, CA
          Location city =  new Location(38.17, -118.82);
 
-        // This location is New York, NY
-        // Location city = new Location(40.7141667, -74.0063889);
+//         This location is New York, NY
+//         Location city = new Location(40.7141667, -74.0063889);
         
         // TODO
         ArrayList<QuakeEntry> answer = filterByDistanceFrom(list, 1000000, city);
@@ -194,7 +207,7 @@ public class EarthQuakeClient {
     public void createCSV(){
         EarthQuakeParser parser = new EarthQuakeParser();
         String source = "data/nov20quakedatasmall.atom";
-        //String source = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom";
+//        String source = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom";
         ArrayList<QuakeEntry> list  = parser.read(source);
         dumpCSV(list);
         System.out.println("# quakes read: " + list.size());

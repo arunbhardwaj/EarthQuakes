@@ -1,5 +1,7 @@
 package assignment1;
 
+import java.util.Comparator;
+
 public class QuakeEntry implements Comparable<QuakeEntry> {
     private Location myLocation;
     private String title;
@@ -46,9 +48,27 @@ public class QuakeEntry implements Comparable<QuakeEntry> {
         // never reached
         return 0;
     }
-
+    
     public String toString(){
         return String.format("(%3.2f, %3.2f), mag = %3.2f, depth = %3.2f, title = %s", myLocation.getLatitude(),myLocation.getLongitude(),magnitude,depth,title);
     }
+    
+    static Comparator<QuakeEntry> magnitude_sort = new Comparator<QuakeEntry>() {
+    	public int compare(QuakeEntry q1, QuakeEntry q2) {
+    		int magnitudeCompared = Double.compare(q1.getMagnitude(), q2.getMagnitude());
+    	
+    		return magnitudeCompared;
+    	}
+    };
+    
+    static Comparator<QuakeEntry> magnitude_sort_reversed = new Comparator<QuakeEntry>() {
+    	public int compare(QuakeEntry q1, QuakeEntry q2) {
+    		int magnitudeCompared = Double.compare(q2.getMagnitude(), q1.getMagnitude());
+    	
+    		return magnitudeCompared;
+    	}
+    };
+    
+	
 
 }

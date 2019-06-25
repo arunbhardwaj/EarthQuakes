@@ -101,11 +101,13 @@ public class EarthQuakeParser {
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException{
         EarthQuakeParser xp = new EarthQuakeParser();
-        //String source = "data/2.5_week.atom";
-        //String source = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom";
+//        String source = "data/2.5_week.atom";
+//        String source = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom";
         String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedatasmall.atom";
+//        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedata.atom";
         ArrayList<QuakeEntry> list  = xp.read(source);
         Collections.sort(list);
+        Scanner in = new Scanner(System.in);
        
         for(QuakeEntry qe : list){
             System.out.println(qe);
@@ -113,13 +115,38 @@ public class EarthQuakeParser {
         System.out.println("# quakes = " +list.size());
         
         EarthQuakeClient o = new EarthQuakeClient();
-        //o.bigQuakes();
-        //o.closeToMe();
-        //o.quakesOfDepth();
-        //o.quakesByPhrase();
+//        o.bigQuakes();
+//        o.closeToMe();
+//        o.quakesOfDepth();
+//        o.quakesByPhrase();
         
-        ClosestQuakes cq = new ClosestQuakes();
-        cq.findClosestQuakes();
+//        ClosestQuakes cq = new ClosestQuakes();
+//        cq.findClosestQuakes();
+        
+//        LargestQuakes lq = new LargestQuakes();
+//        lq.findLargestQuakes();
+        
+        
+        /*
+         * Alternative way to filter through the data using an Interface to avoid duplicating code. 
+         */
+        Filter f = new MinMagFilter(5.0);
+        Filter f1 = new DepthFilter(-8000.0, -5000.0);
+        Filter f2 = new DistanceFilter(1000000,new Location(38.17, -118.82));
+        System.out.println("Enter a phrase to find:");
+        String phrase = in.next();
+        System.out.println("Enter a location to find the phrase:");
+        String where = in.next();
+        in.close();
+        Filter f3 = new PhraseFilter(phrase, where);
+     
+        ArrayList<QuakeEntry> results = o.filter(list, f3);
+        for (QuakeEntry qe : results) {
+        	System.out.println(qe);
+        }
+        System.out.println("found " + results.size() + " that match the criteria.");	
+        
+     
     }
     
 }
