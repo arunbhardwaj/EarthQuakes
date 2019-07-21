@@ -4,6 +4,9 @@ import java.util.*;
 import java.util.Scanner;
 //import edu.duke.*;
 
+import assignment2.Filter;
+import assignment2.MatchAllFilter;
+
 public class EarthQuakeClient {
     public EarthQuakeClient() {
         // TODO Auto-generated constructor stub

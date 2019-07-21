@@ -25,6 +25,10 @@ public class QuakeEntry implements Comparable<QuakeEntry> {
         return magnitude;
     }
 
+    /**
+     * 
+     * @return the title of the QuakeEntry
+     */
     public String getInfo(){
         return title;
     }
@@ -32,9 +36,14 @@ public class QuakeEntry implements Comparable<QuakeEntry> {
     public double getDepth(){
         return depth;
     }
-
+    
+    public String toString(){
+        return String.format("(%3.2f, %3.2f), mag = %3.2f, depth = %3.2f, title = %s", myLocation.getLatitude(),myLocation.getLongitude(),magnitude,depth,title);
+    }
+    
     @Override
-    public int compareTo(QuakeEntry loc) {
+    public int compareTo(QuakeEntry q2) {
+    	/*
         double difflat = myLocation.getLatitude() - loc.myLocation.getLatitude();
         if (Math.abs(difflat) < 0.001) {
             double diff = myLocation.getLongitude() - loc.myLocation.getLongitude();
@@ -44,13 +53,17 @@ public class QuakeEntry implements Comparable<QuakeEntry> {
         }
         if (difflat < 0) return -1;
         if (difflat > 0) return 1;
-
+		*/
+    	if (magnitude < q2.getMagnitude()) {
+    		return -1;
+    	} else if (magnitude > q2.getMagnitude()) {
+    		return 1;
+    	} else {
+    		return Double.compare(depth, q2.getDepth());
+    	}
+    	
         // never reached
-        return 0;
-    }
-    
-    public String toString(){
-        return String.format("(%3.2f, %3.2f), mag = %3.2f, depth = %3.2f, title = %s", myLocation.getLatitude(),myLocation.getLongitude(),magnitude,depth,title);
+//        return 0;
     }
     
     static Comparator<QuakeEntry> magnitude_sort = new Comparator<QuakeEntry>() {

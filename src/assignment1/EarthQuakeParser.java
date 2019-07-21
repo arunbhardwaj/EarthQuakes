@@ -11,6 +11,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
+import assignment2.DepthFilter;
+import assignment2.DistanceFilter;
+import assignment2.Filter;
+import assignment2.MatchAllFilter;
+import assignment2.MinMagFilter;
+import assignment2.PhraseFilter;
+import assignment3.*;
+
 public class EarthQuakeParser {
     public EarthQuakeParser() {
         // TODO Auto-generated constructor stub
@@ -104,54 +112,65 @@ public class EarthQuakeParser {
 //        String source = "data/2.5_week.atom";
 //        String source = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom";
 //        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedatasmall.atom";
-        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedata.atom";
+//        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedata.atom";
+        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\earthQuakeDataDec6sample1.atom";
         ArrayList<QuakeEntry> list  = xp.read(source);
-        Collections.sort(list);
         Scanner in = new Scanner(System.in);
-       
+        
+//        Collections.sort(list, QuakeEntry.magnitude_sort_reversed);
+//        QuakeSort.sortByMagnitude_WithSwap(list);
+        Collections.sort(list, new TitleLastAndMagnitudeComparator());
+        
         for(QuakeEntry qe : list){
             System.out.println(qe);
         }
         System.out.println("# quakes = " +list.size());
         
+        int quakeNumber = 50;
+        System.out.println("Print quake entry in position " + quakeNumber);
+        System.out.println(list.get(quakeNumber));
+        
         EarthQuakeClient o = new EarthQuakeClient();
+        
+       /*
+	        First implementation to filter the data and gather output.
+	        
+	        o.bigQuakes();
+	        o.closeToMe();
+	        o.quakesOfDepth();
+	        o.quakesByPhrase();
+	        
+	        ClosestQuakes cq = new ClosestQuakes();
+	        cq.findClosestQuakes();
+	        
+	        LargestQuakes lq = new LargestQuakes();
+	        lq.findLargestQuakes();
+	        
+        	Second implementation to search the data using filters.
+        */
+        
+        Filter f1 = new MinMagFilter(in);
+        Filter f2 = new DepthFilter(in);
+        // Possible improvements, create a database of locations that can be searched by name of the city. So User can type in "Tulsa" and get the 
+        // corresponding location entered without needing to know the coordinate-data.
+//        Japan
+//        Filter f3 = new DistanceFilter(10000000, new Location(35.42,139.43), in);
+//        Tulsa, Oklahoma
+        Filter f3 = new DistanceFilter(10000000, new Location(36.1314,-95.9372), in);
+        Filter f4 = new PhraseFilter(in);
+        in.close();
+        
         /*
-         * First implementation to filter the data and gather output.
-         */
-//        o.bigQuakes();
-//        o.closeToMe();
-//        o.quakesOfDepth();
-//        o.quakesByPhrase();
-        
-//        ClosestQuakes cq = new ClosestQuakes();
-//        cq.findClosestQuakes();
-        
-//        LargestQuakes lq = new LargestQuakes();
-//        lq.findLargestQuakes();
-        
-        
-        /*
-         * Second alternative way to filter through the data using a Filter Interface to avoid duplicating code. 
-         */
-        Filter f = new MinMagFilter(5.0);
-        Filter f1 = new DepthFilter(-11000.0, -5000.0);
-        Filter f2 = new DistanceFilter(10000000,new Location(-6.211,106.845));
-        Filter f3 = new PhraseFilter();
-     
-//        ArrayList<QuakeEntry> results = o.filter(list, f3);
-//        for (QuakeEntry qe : results) {
-//        	System.out.println(qe);
-//        }
-//        System.out.println("found " + results.size() + " that match the criteria.");	
-        
-        /*
-         * Third alternative way to filter through the data using a matchAllFilter interface to get rid of filter duplication code.
+        Using a singular filter to search through the data:
+        	ArrayList<QuakeEntry> result = o.filter(list, f1);
+        	
+        Using multiple filters to search through the data:
          */
         MatchAllFilter maf = new MatchAllFilter();
-        maf.addFilter(f);
         maf.addFilter(f1);
         maf.addFilter(f2);
         maf.addFilter(f3);
+        maf.addFilter(f4);
         
         ArrayList<QuakeEntry> results = o.filter(list, maf);
         for (QuakeEntry qe : results) {
@@ -159,6 +178,7 @@ public class EarthQuakeParser {
         }
         System.out.println("found " + results.size() + " that match the criteria.");
         
+        System.out.println("Filters used are: " + maf.getName());
      
     }
     
