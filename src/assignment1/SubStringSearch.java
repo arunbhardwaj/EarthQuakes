@@ -27,6 +27,16 @@ public class SubStringSearch {
 		this.patternArray = buildPatternArray(this.subString);
 	}
 
+	/**
+	 * Checks if this objects text contains the substring chosen.
+	 * Future improvements: using a SubStringSearch object to call the method
+	 * instead of a text object to call contains on a substring
+	 * is not intuitive (as is the fact that unintuitive is not 
+	 * an actual word contained in an authoritative dictionary
+	 * source)
+	 * 
+	 * @return true if substring was found within the text or false if not
+	 */
 	public boolean contains() {
 		this.index = 0;
 		int i = 0, j = 0;
@@ -49,6 +59,15 @@ public class SubStringSearch {
 		return false;
 	}
 	
+	/**
+	 * Checks if this objects text contains the substring chosen, with 
+	 * added functionality of checking from a certain location indicated 
+	 * with where.
+	 * 
+	 * @param subString the substring to search the text for
+	 * @param where location where to begin search ("start", "end", "any" are currently the only options supported)
+	 * @return true if found, false if not found
+	 */
 	public boolean contains(String subString, String where) {
 		this.subString = subString;
 		
@@ -117,8 +136,8 @@ public class SubStringSearch {
 		return temp;
 	}
 	
+	/* a main to test this class. 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		String test = "dsgwadsgz";
 		String originalString = "adsgwadsxdsgwadsgz";
 		SubStringSearch obj = new SubStringSearch(originalString, test);
@@ -138,5 +157,5 @@ public class SubStringSearch {
 		
 		
 	}
-
+	*/ 
 }
