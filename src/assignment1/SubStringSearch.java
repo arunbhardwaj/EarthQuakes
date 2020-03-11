@@ -31,9 +31,7 @@ public class SubStringSearch {
 	 * Checks if this objects text contains the substring chosen.
 	 * Future improvements: using a SubStringSearch object to call the method
 	 * instead of a text object to call contains on a substring
-	 * is not intuitive (as is the fact that unintuitive is not 
-	 * an actual word contained in an authoritative dictionary
-	 * source)
+	 * is not intuitive.
 	 * 
 	 * @return true if substring was found within the text or false if not
 	 */
@@ -66,7 +64,7 @@ public class SubStringSearch {
 	 * 
 	 * @param subString the substring to search the text for
 	 * @param where location where to begin search ("start", "end", "any" are currently the only options supported)
-	 * @return true if found, false if not found
+	 * @return true if found, or false if not found
 	 */
 	public boolean contains(String subString, String where) {
 		this.subString = subString;

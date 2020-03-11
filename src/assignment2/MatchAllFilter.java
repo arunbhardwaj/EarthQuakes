@@ -17,7 +17,6 @@ public class MatchAllFilter implements Filter {
 	
 	@Override
 	public boolean satisfies(QuakeEntry qe) {
-		// TODO Auto-generated method stub
 		for (Filter f: filters) {
 			if (!f.satisfies(qe)) {
 				return false;
@@ -35,4 +34,13 @@ public class MatchAllFilter implements Filter {
 		return sb.toString();
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (Filter f : filters) {
+			sb.append(f.toString()).append("\n");
+		}
+		return sb.toString();
+		
+	}
 }

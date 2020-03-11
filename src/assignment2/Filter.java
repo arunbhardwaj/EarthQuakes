@@ -12,4 +12,5 @@ import assignment1.QuakeEntry;
 public interface Filter {
 	public boolean satisfies(QuakeEntry qe);
 	public String getName();
+	public String toString();
 }

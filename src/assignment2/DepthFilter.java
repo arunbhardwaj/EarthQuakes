@@ -7,17 +7,14 @@ import assignment1.QuakeEntry;
 public class DepthFilter implements Filter {
 	private double minDepth;
 	private double maxDepth;
-	private String name;
+	private String name = "DepthFilter";
 	
 	public DepthFilter(Scanner in) {
-		System.out.println("Creating filter for DepthFilter.");
-		System.out.println("Enter a MINIMUM depth:");
+//		System.out.println("Creating filter for DepthFilter.");
+		System.out.println("Enter a MINIMUM depth (depths can be negative):");
 		this.minDepth = Double.parseDouble(in.next());
-		System.out.println("Enter a MAXIMUM depth:");
+		System.out.println("Enter a MAXIMUM depth (depths can be negative):");
 		this.maxDepth = Double.parseDouble(in.next());
-
-		System.out.println("Name this filter:");
-		this.name = in.next();
 	}
 	
 	@Override
@@ -32,4 +29,9 @@ public class DepthFilter implements Filter {
 		return name;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		return sb.append(name).append(": ").append(minDepth).append(" - ").append(maxDepth).append(" meters").toString();
+	}
 }

@@ -1,7 +1,9 @@
 package assignment1;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -15,23 +17,18 @@ import assignment2.DepthFilter;
 import assignment2.DistanceFilter;
 import assignment2.Filter;
 import assignment2.MatchAllFilter;
-import assignment2.MinMagFilter;
+import assignment2.MagRangeFilter;
 import assignment2.PhraseFilter;
 import assignment3.*;
 
 public class EarthQuakeParser {
-    public EarthQuakeParser() {
-        // TODO Auto-generated constructor stub
-    }
-
+	
     public ArrayList<QuakeEntry> read(String source) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
 
-            //Document document = builder.parse(new File(source));
-            //Document document = builder.parse("http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom");
             Document document = null;
 
             if (source.startsWith("http")){
@@ -40,15 +37,19 @@ public class EarthQuakeParser {
             else {
                 document = builder.parse(new File(source));
             }
-            //Document document = builder.parse("http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom");
 
             NodeList nodeList = document.getDocumentElement().getChildNodes();
 
             ArrayList<QuakeEntry> list = new ArrayList<QuakeEntry>();
-
+            
+            //TODO: implement a progress bar for reading in large data files. 
+//            int percent = 0;
+//            int total = nodeList.getLength();
+//            String status = "[          ] " + percent + "%";
+            
             for(int k=0; k < nodeList.getLength(); k++){
                 Node node = nodeList.item(k);
-
+                
                 if (node.getNodeName().equals("entry")) {
                     Element elem = (Element) node;
                     NodeList t1 = elem.getElementsByTagName("georss:point");
@@ -57,18 +58,20 @@ public class EarthQuakeParser {
                     double lat = 0.0, lon = 0.0, depth = 0.0;
                     String title = "NO INFORMATION";
                     double mag = 0.0;
-
+                    
+                    // Get Latitude and Longitude
                     if (t1 != null) {
                         String s2 = t1.item(0).getChildNodes().item(0).getNodeValue();
                         //System.out.print("point2: "+s2);
-                        String[] args = s2.split(" ");
+                        String[] args = s2.split(" "); // Latitude and Longitude are separated by a white space
                         lat = Double.parseDouble(args[0]);
                         lon = Double.parseDouble(args[1]);
                     }
+                    // Get magnitude and title
                     if (t2 != null){
                         String s2 = t2.item(0).getChildNodes().item(0).getNodeValue();
-
-                        String mags = s2.substring(2,s2.indexOf(" ",2));
+                        
+                        String mags = s2.substring(2,s2.indexOf(" ",2)); // Magnitude value ends at the next white space
                         if (mags.contains("?")) {
                             mag = 0.0;
                             System.err.println("unknown magnitude in data");
@@ -84,14 +87,16 @@ public class EarthQuakeParser {
                             title = title.substring(pos+1);
                         }
                     }
+                    // Get depth
                     if (t3 != null){
                         String s2 = t3.item(0).getChildNodes().item(0).getNodeValue();
                         depth = Double.parseDouble(s2);
                     }
                     QuakeEntry loc = new QuakeEntry(lat,lon,mag,title,depth);
                     list.add(loc);
+                    
                 }
-
+                
             }
             return list;
         }
@@ -106,80 +111,107 @@ public class EarthQuakeParser {
         }
         return null;
     }
-
+    
+    /**
+	 * This is where the program starts. 
+	 * 
+	 * The output from this method is written to an output file 
+	 * specified by args[0]. The program reads earthquake data for 
+	 * the past 7 days from the official usgs.gov website.
+	 * 
+	 * @param args an array of command line arguments,
+	 * expected value is
+	 *   args[0] - name of the output file
+	 */
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException{
-        EarthQuakeParser xp = new EarthQuakeParser();
-//        String source = "data/2.5_week.atom";
-//        String source = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom";
-//        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedatasmall.atom";
-//        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\nov20quakedata.atom";
-        String source = "C:\\Users\\Arun\\eclipse-workspace\\EarthQuake\\src\\data\\earthQuakeDataDec6sample1.atom";
+        System.out.println("Reading in the data.");
+    	EarthQuakeParser xp = new EarthQuakeParser();
+        String source = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.atom";
         ArrayList<QuakeEntry> list  = xp.read(source);
-        Scanner in = new Scanner(System.in);
         
-//        Collections.sort(list, QuakeEntry.magnitude_sort_reversed);
-//        QuakeSort.sortByMagnitude_WithSwap(list);
+        //TODO: Let users have an optional commands file instead of having to reenter commands every run.
+        if (args.length != 1) {
+			System.err.println("Error: invalid usage\n"
+					+ "EarthQuakeParser outputFile\n");
+			System.exit(0);
+		}
+        
+    	/***************************************************************** 
+		 ** open a file output stream for writing results out           ** 
+		 *****************************************************************/
+
+		PrintWriter output = null;
+		File outputFile = new File(args[0]);
+
+		try {
+			output = new PrintWriter(outputFile);
+		}
+		catch (FileNotFoundException e) {
+			System.err.printf("Error: cannot open file %s for writing.\n.",
+					outputFile.getAbsolutePath());
+		}
+        
+		/*****************************************************************
+		 ** execute commands from the user input                        **
+		 *****************************************************************/
+		
+        // Sort by Country and State alphabetically and then by Magnitude
         Collections.sort(list, new TitleLastAndMagnitudeComparator());
         
-        for(QuakeEntry qe : list){
-            System.out.println(qe);
+        System.out.println("Total # of quakes = " +list.size());
+        
+        EarthQuakeClient client = new EarthQuakeClient();
+        Scanner in = new Scanner(System.in);
+        
+        System.out.println("Enter search criterias to filter results? (Y/N)");
+        if (in.next().equalsIgnoreCase("n")) {
+        	output.print("All results:\t");
+        	output.println("\n- - - - - - - - - - - - - - - - - - - -\n");
+        	for(QuakeEntry qe : list){
+				output.println(qe.toString());
+        	}
+			output.println("\n=======================================\n");
+			
+        	in.close(); output.close(); System.exit(0);
         }
-        System.out.println("# quakes = " +list.size());
         
-        int quakeNumber = 50;
-        System.out.println("Print quake entry in position " + quakeNumber);
-        System.out.println(list.get(quakeNumber));
-        
-        EarthQuakeClient o = new EarthQuakeClient();
-        
-       /*
-	        First implementation to filter the data and gather output.
-	        
-	        o.bigQuakes();
-	        o.closeToMe();
-	        o.quakesOfDepth();
-	        o.quakesByPhrase();
-	        
-	        ClosestQuakes cq = new ClosestQuakes();
-	        cq.findClosestQuakes();
-	        
-	        LargestQuakes lq = new LargestQuakes();
-	        lq.findLargestQuakes();
-	        
-        	Second implementation to search the data using filters.
-        */
-        
-        Filter f1 = new MinMagFilter(in);
-        Filter f2 = new DepthFilter(in);
-        // Possible improvements, create a database of locations that can be searched by name of the city. So User can type in "Tulsa" and get the 
-        // corresponding location entered without needing to know the coordinate-data.
-//        Japan
-//        Filter f3 = new DistanceFilter(10000000, new Location(35.42,139.43), in);
-//        Tulsa, Oklahoma
-        Filter f3 = new DistanceFilter(10000000, new Location(36.1314,-95.9372), in);
-        Filter f4 = new PhraseFilter(in);
+        MatchAllFilter maf = new MatchAllFilter();
+        System.out.println("Search by magnitude? (Y/N)");
+        if (in.next().equalsIgnoreCase("y")) {
+        	Filter f1 = new MagRangeFilter(in);
+        	maf.addFilter(f1);
+        }
+        System.out.println("Search by depth? (Y/N)");
+        if (in.next().equalsIgnoreCase("y")) {
+        	Filter f2 = new DepthFilter(in);
+        	maf.addFilter(f2);
+        }
+        System.out.println("Search by distance from a set location? (Y/N)");
+        if (in.next().equalsIgnoreCase("y")) {
+        	Filter f3 = new DistanceFilter(in);
+        	maf.addFilter(f3);
+        }
+        System.out.println("Search by phrase? (Y/N)");
+        if (in.next().equalsIgnoreCase("y")) {
+        	Filter f4 = new PhraseFilter(in);
+        	maf.addFilter(f4);
+        }
         in.close();
         
-        /*
-        Using a singular filter to search through the data:
-        	ArrayList<QuakeEntry> result = o.filter(list, f1);
-        	
-        Using multiple filters to search through the data:
-         */
-        MatchAllFilter maf = new MatchAllFilter();
-        maf.addFilter(f1);
-        maf.addFilter(f2);
-        maf.addFilter(f3);
-        maf.addFilter(f4);
-        
-        ArrayList<QuakeEntry> results = o.filter(list, maf);
+        ArrayList<QuakeEntry> results = client.filter(list, maf);
+        output.print("Results of \n" + maf.toString() + "\t");
+        output.println("\n- - - - - - - - - - - - - - - - - - - -\n");
         for (QuakeEntry qe : results) {
-        	System.out.println(qe);
+			output.println(qe.toString());
         }
+        output.println("\n=======================================\n");
+
+        output.println("found " + results.size() + " that match the criteria.");
         System.out.println("found " + results.size() + " that match the criteria.");
-        
         System.out.println("Filters used are: " + maf.getName());
-     
+        
+        output.close();
+		
     }
     
 }
