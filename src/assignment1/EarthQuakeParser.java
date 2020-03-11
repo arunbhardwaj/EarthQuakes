@@ -165,6 +165,7 @@ public class EarthQuakeParser {
         
         System.out.println("Enter search criterias to filter results? (Y/N)");
         if (in.next().equalsIgnoreCase("n")) {
+        	System.out.println("Printing " + list.size() + " earthquakes to " + outputFile.toString());
         	output.print("All results:\t");
         	output.println("\n- - - - - - - - - - - - - - - - - - - -\n");
         	for(QuakeEntry qe : list){
@@ -172,6 +173,7 @@ public class EarthQuakeParser {
         	}
 			output.println("\n=======================================\n");
 			
+			System.out.println("Done.");
         	in.close(); output.close(); System.exit(0);
         }
         
@@ -199,16 +201,19 @@ public class EarthQuakeParser {
         in.close();
         
         ArrayList<QuakeEntry> results = client.filter(list, maf);
+        System.out.println("found " + results.size() + " that match the criteria.");
+        System.out.println("Printing " + results.size() + " earthquakes to " + outputFile.toString());
+        
         output.print("Results of \n" + maf.toString() + "\t");
         output.println("\n- - - - - - - - - - - - - - - - - - - -\n");
         for (QuakeEntry qe : results) {
 			output.println(qe.toString());
         }
         output.println("\n=======================================\n");
-
         output.println("found " + results.size() + " that match the criteria.");
-        System.out.println("found " + results.size() + " that match the criteria.");
-        System.out.println("Filters used are: " + maf.getName());
+        
+        System.out.println("Done.");
+//        System.out.println("Filters used are: " + maf.getName());
         
         output.close();
 		
