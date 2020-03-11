@@ -132,7 +132,7 @@ public class EarthQuakeParser {
         //TODO: Let users have an optional commands file instead of having to reenter commands every run.
         if (args.length != 1) {
 			System.err.println("Error: invalid usage\n"
-					+ "EarthQuakeParser outputFile\n");
+					+ "EarthQuakeSearcher outputFile\n");
 			System.exit(0);
 		}
         
