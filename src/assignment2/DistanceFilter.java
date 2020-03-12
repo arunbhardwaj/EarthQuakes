@@ -13,7 +13,7 @@ public class DistanceFilter implements Filter {
 	private String name = "DistanceFilter";
 	
 	public DistanceFilter(Scanner in) {		
-		System.out.println("Enter the latitude and longitude of a location:");
+		System.out.println("Enter the latitude and longitude of a location, separated by a space:");
 		mLatitude = Double.parseDouble(in.next());
 		mLongitude = Double.parseDouble(in.next());
 		
